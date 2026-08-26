@@ -1,23 +1,43 @@
 #' @title Greenhouse and Controlled Environment Agriculture (CEA) Biometrics
 #' @description Decompose spatial microclimatic gradients (cooling pad-to-fan longitudinal trend), 
 #'   bench edge effects, pot density covariates, and hierarchical physical strata.
-#' @param model A fitted linear mixed model (lmerMod, lme, glmmTMB).
+#' @param model A fitted linear mixed model (lmerMod, lme, glmmTMB) or lm.
 #' @param y_axis Name of longitudinal distance column (pad-to-fan axis).
 #' @param x_axis Name of lateral distance column (bench lateral axis).
-#' @param pot_density Name of pot seedling density covariate column.
 #' @export
-get_greenhouse_gradients <- function(model, y_axis = "pad_distance", x_axis = "bench_col", ...) {
+get_greenhouse_gradients <- function(model, y_axis = "Pad_Distance", x_axis = "Bench_Col", ...) {
   dat <- if (inherits(model, "merMod")) model@frame else stats::model.frame(model)
   resids <- residuals(model)
   
   out <- list()
+  gradient_detected <- FALSE
+  pad_cor <- NA_real_
+  pad_pval <- NA_real_
+  
   if (y_axis %in% colnames(dat)) {
     trend_y <- stats::loess(resids ~ dat[[y_axis]])
+    ct <- stats::cor.test(dat[[y_axis]], resids)
+    pad_cor <- as.numeric(ct$estimate)
+    pad_pval <- as.numeric(ct$p.value)
+    
+    # Check if Pad_Distance is significant in fixed effects
+    cf_mod <- coef(summary(model))
+    if (y_axis %in% rownames(cf_mod)) {
+      t_val <- abs(cf_mod[y_axis, grep("t value|z value", colnames(cf_mod), ignore.case = TRUE)[1]] %||% 0)
+      p_col <- grep("Pr|p", colnames(cf_mod), ignore.case = TRUE)[1]
+      p_val <- if (!is.na(p_col)) cf_mod[y_axis, p_col] else 2 * (1 - stats::pnorm(t_val))
+      gradient_detected <- (p_val < 0.05) || (t_val > 1.96) || (abs(pad_cor) > 0.15 && pad_pval < 0.05)
+    } else {
+      gradient_detected <- abs(pad_cor) > 0.15 && pad_pval < 0.05
+    }
+    
     out$pad_to_fan_gradient <- data.frame(
       Distance_Y = dat[[y_axis]],
       Residuals = resids,
       Smooth_Trend = stats::predict(trend_y)
     )
+    out$pad_correlation <- pad_cor
+    out$pad_p_value <- pad_pval
   }
   
   if (x_axis %in% colnames(dat)) {
@@ -29,16 +49,12 @@ get_greenhouse_gradients <- function(model, y_axis = "pad_distance", x_axis = "b
     )
   }
   
-  out$gradient_detected <- if (!is.null(out$pad_to_fan_gradient)) {
-    abs(stats::cor(dat[[y_axis]], resids, use = "complete.obs")) > 0.15
-  } else FALSE
-  
+  out$gradient_detected <- isTRUE(gradient_detected)
   class(out) <- c("agri_greenhouse_gradient", "list")
   out
 }
 
 #' @title Extract Hierarchical Physical Strata Variance in CEA
-#' @description Partitions total variation across Room -> Bench -> Block -> Pot -> Plant -> Residuals.
 #' @param model A fitted hierarchical mixed model.
 #' @export
 get_strata_variance <- function(model) {
