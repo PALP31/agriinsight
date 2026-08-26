@@ -1,0 +1,42 @@
+Package: agriinsight
+Type: Package
+Title: Unified Statistical Modeling and Biometrics for Agricultural and Biological Sciences
+Version: 0.1.0
+Authors@R: c(
+    person("Paul", "Lopez", email = "paul.lopez@uc.cl", role = c("aut", "cre")),
+    person("DeepMind", "Antigravity", role = c("ctb"))
+  )
+Description: Provides a unified, model-agnostic S3 interface for advanced statistical modeling in agricultural, biological, and environmental sciences. Extends the 'easystats' philosophy to specialized domains including greenhouse microclimate modeling, plant-microbe interactions (endophytes, Trichoderma, PGPB), abiotic stress kinetics (drought FTSW, salinity ion homeostasis, anthesis heat shock, combined stress), spatial field trials (P-splines), multi-environment stability (GxE), dose-response bioassays, and longitudinal repeated measures. Includes automated AI-assisted diagnostic reporting and publication-ready vector figure exports.
+License: MIT + file LICENSE
+URL: https://github.com/paullopez/agriinsight
+BugReports: https://github.com/paullopez/agriinsight/issues
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.0.0)
+Imports:
+    methods,
+    stats,
+    utils
+Suggests:
+    brms,
+    car,
+    DHARMa,
+    drc,
+    emmeans,
+    ggplot2,
+    glmmTMB,
+    jsonlite,
+    knitr,
+    lme4,
+    lmerTest,
+    mgcv,
+    nlme,
+    ordinal,
+    rmarkdown,
+    sommer,
+    SpATS,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
