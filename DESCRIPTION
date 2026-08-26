@@ -6,13 +6,12 @@ Authors@R: c(
     person("Paul", "Lopez", email = "paul.lopez@uc.cl", role = c("aut", "cre")),
     person("DeepMind", "Antigravity", role = c("ctb"))
   )
-Description: Provides a unified, model-agnostic S3 interface for advanced statistical modeling in agricultural, biological, and environmental sciences. Extends the 'easystats' philosophy to specialized domains including greenhouse microclimate modeling, plant-microbe interactions (endophytes, Trichoderma, PGPB), abiotic stress kinetics (drought FTSW, salinity ion homeostasis, anthesis heat shock, combined stress), spatial field trials (P-splines), multi-environment stability (GxE), dose-response bioassays, and longitudinal repeated measures. Includes automated AI-assisted diagnostic reporting and publication-ready vector figure exports.
+Description: Provides a unified, model-agnostic S3 meta-interface and biometrical computing framework for agricultural, biological, and environmental sciences. Extends the 'easystats' (insight) philosophy to specialized agronomic domains including greenhouse microclimate modeling, plant-microbe interactions (endophytes, Trichoderma, PGPB, ZOIB root colonization, Bliss/Loewe synergy), abiotic stress kinetics (drought FTSW segmented breakpoints with bootstrap CIs, salinity K+/Na+ ion selectivity and osmotic adjustment, anthesis heat shock and non-linear grain filling kinetics), spatial field trials (P-splines, Matheron directional semivariograms), multi-environment stability (AMMI, GGE, ASV, YSI, Wricke ecovalence, Shukla variance, Finlay-Wilkinson regression), 2-stage MET inverse-variance weighting, crop nutrition plateau models (Linear-Plateau, Quadratic-Plateau, Mitscherlich-Bray, EOFR/AOFR), photosynthetic FvCB A/Ci curve fitting, dose-response bioassays (drc ED50 and relative potency), and Compact Letter Displays (Piepho 2004 maximal clique algorithm). Includes automated AI-assisted diagnostic reporting and publication-ready vector SVG figure exports.
 License: MIT + file LICENSE
-URL: https://github.com/paullopez/agriinsight
-BugReports: https://github.com/paullopez/agriinsight/issues
+URL: https://github.com/PALP31/agriinsight
+BugReports: https://github.com/PALP31/agriinsight/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
 Depends:
     R (>= 4.0.0)
 Imports:
@@ -40,3 +39,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
