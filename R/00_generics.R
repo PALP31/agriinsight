@@ -1,8 +1,13 @@
-#' @title Unified S3 Generics for agriinsight
+#' @title Unified S3 Generics and Helpers for agriinsight
 #' @description Core S3 generic functions providing a unified interface across 
 #'   diverse agricultural, biological, and econometric model classes.
 #' @name agriinsight_generics
 NULL
+
+# Null-coalescing operator
+`%||%` <- function(a, b) {
+  if (is.null(a) || length(a) == 0 || is.na(a[1])) b else a
+}
 
 #' @rdname agriinsight_generics
 #' @export

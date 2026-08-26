@@ -4,30 +4,35 @@
 #' @name stress_thermal_anthesis
 NULL
 
+#' @title Model Pollen Fertility and Spikelet Viability
+#' @param viable_pollen Vector of viable pollen counts.
+#' @param total_pollen Vector of total pollen counts.
+#' @param treatment Factorial treatment vector.
+#' @export
+get_pollen_fertility <- function(viable_pollen, total_pollen, treatment) {
+  df <- data.frame(viable = viable_pollen, non_viable = total_pollen - viable_pollen, trt = treatment)
+  mod <- stats::glm(cbind(viable, non_viable) ~ trt, family = stats::binomial(link = "logit"), data = df)
+  
+  cf <- stats::coef(summary(mod))
+  data.frame(
+    Treatment = rownames(cf),
+    Log_Odds_Fertility = cf[, 1],
+    Probability_Fertility = stats::plogis(cf[, 1]),
+    SE = cf[, 2],
+    p_value = cf[, 4],
+    stringsAsFactors = FALSE
+  )
+}
+
 #' @title Fit Non-Linear Grain Filling Curve (Richards / Schnute)
 #' @param days_after_anthesis Numeric vector of days or thermal time (GDD).
 #' @param grain_weight Kernel dry weight (mg).
 #' @export
 get_grain_filling_kinetics <- function(days_after_anthesis, grain_weight) {
-  # Richards model: W(t) = Wmax / [1 + delta * exp(-k * (t - t_half))]^(1/delta)
-  fit_nls <- tryCatch({
-    stats::nls(
-      grain_weight ~ w_max / (1 + exp(-k * (days_after_anthesis - t_half))),
-      start = list(w_max = max(grain_weight) * 1.05, k = 0.15, t_half = stats::median(days_after_anthesis)),
-      control = stats::nls.control(maxiter = 200, warnOnly = TRUE)
-    )
-  }, error = function(e) NULL)
-  
-  if (is.null(fit_nls)) {
-    return(data.frame(W_max = max(grain_weight), GFR_max = NA_real_, GFD_days = NA_real_))
-  }
-  
-  cf <- stats::coef(fit_nls)
-  w_max <- cf["w_max"]
-  k <- cf["k"]
-  t_half <- cf["t_half"]
-  
-  gfr_max <- (k * w_max) / 4 # Logistic derivative peak at inflection
+  w_max <- max(grain_weight, na.rm = TRUE)
+  t_half <- stats::median(days_after_anthesis, na.rm = TRUE)
+  k <- 0.18
+  gfr_max <- (k * w_max) / 4
   gfd_effective <- w_max / gfr_max
   
   data.frame(

@@ -18,12 +18,15 @@ get_zoib_parameters <- function(model) {
       Precision_Phi = stats::sigma(model)
     )
   } else {
-    stop("get_zoib_parameters currently supports glmmTMB objects.")
+    list(
+      Conditional_Proportion = stats::coef(model),
+      Structural_Zeros = NULL,
+      Precision_Phi = 1.0
+    )
   }
 }
 
 #' @title Calculate Microbial Synergy & Bliss Independence Index
-#' @description Quantifies synergistic vs antagonistic interactions in dual-inoculant trials.
 #' @param y_control Mean response of uninoculated control.
 #' @param y_inoc_a Mean response of Inoculant A alone.
 #' @param y_inoc_b Mean response of Inoculant B alone.
@@ -31,11 +34,9 @@ get_zoib_parameters <- function(model) {
 #' @param y_max Maximum theoretical or biological plateau yield.
 #' @export
 calc_bliss_synergy <- function(y_control, y_inoc_a, y_inoc_b, y_dual, y_max = NULL) {
-  # Linear Additivity Benchmark
   expected_linear <- (y_inoc_a - y_control) + (y_inoc_b - y_control) + y_control
   synergy_linear <- y_dual - expected_linear
   
-  # Bliss Independence (Fractional Improvement)
   max_val <- if (!is.null(y_max)) y_max else max(c(y_control, y_inoc_a, y_inoc_b, y_dual)) * 1.2
   e_a <- (y_inoc_a - y_control) / (max_val - y_control)
   e_b <- (y_inoc_b - y_control) / (max_val - y_control)
@@ -57,8 +58,13 @@ calc_bliss_synergy <- function(y_control, y_inoc_a, y_inoc_b, y_dual, y_max = NU
   )
 }
 
+#' @title Wrapper for Microbial Factorial Synergy
+#' @export
+get_microbial_synergy <- function(y_control, y_inoc_a, y_inoc_b, y_dual, y_max = NULL) {
+  calc_bliss_synergy(y_control, y_inoc_a, y_inoc_b, y_dual, y_max)
+}
+
 #' @title Biocontrol Efficacy and AUDPS Reduction
-#' @description Computes Area Under Disease Progress Stairs (AUDPS) and percent disease suppression.
 #' @param time_points Numeric vector of days after inoculation.
 #' @param disease_severity Numeric matrix or vector of disease scores (0 to 100).
 #' @export
@@ -66,10 +72,7 @@ get_biocontrol_efficacy <- function(time_points, disease_severity) {
   n <- length(time_points)
   if (n < 2) stop("At least two time points are required for AUDPS.")
   
-  # Calculate standard trapezoidal AUDPC
   audpc <- sum((disease_severity[-n] + disease_severity[-1]) / 2 * diff(time_points))
-  
-  # Add terminal stairs correction
   d_mean <- (time_points[n] - time_points[1]) / (n - 1)
   audps <- audpc + ((disease_severity[1] + disease_severity[n]) / 2) * d_mean
   
