@@ -1,0 +1,52 @@
+---
+title: "Endophytes, Soil Microbiome & Biocontrol Kinetics"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Endophytes, Soil Microbiome & Biocontrol Kinetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+Evaluating beneficial plant-associated microorganisms (*Trichoderma*, bacterial endophytes, mycorrhizae) involves:
+- Quantifying **root colonization** constrained to $[0, 1]$ (Zero-One Inflated Beta).
+- Testing **microbial synergy** in multi-strain consortia via the Bliss Independence Criterion.
+- Evaluating biocontrol suppression of soil-borne phytopathogens via **AUDPS** (Area Under Disease Progress Stairs).
+
+---
+
+```{r setup}
+library(agriinsight)
+```
+
+# 1. Dual Inoculation Synergy (Bliss Independence)
+
+```{r bliss}
+# Control: 20 g, Inoculant A: 28 g, Inoculant B: 27 g, Dual Consortium: 48 g, Physiological Max: 55 g
+syn <- calc_bliss_synergy(y_control = 20.0, y_inoc_a = 28.0, y_inoc_b = 27.0, y_dual = 48.0, y_max = 55.0)
+syn
+```
+
+---
+
+# 2. Biocontrol Disease Suppression (AUDPS vs AUDPC)
+
+```{r biocontrol}
+days <- c(0, 7, 14, 21, 28)
+root_rot_severity <- c(0, 5, 18, 45, 75)
+
+efficacy <- get_biocontrol_efficacy(days, root_rot_severity)
+efficacy
+```

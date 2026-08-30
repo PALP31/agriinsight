@@ -1,0 +1,60 @@
+---
+title: "Crop Nutrition & Soil Fertility: Plateau Calibration and Economic Optimum (EOFR)"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Crop Nutrition & Soil Fertility: Plateau Calibration and Economic Optimum (EOFR)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+Calibrating soil nutrient test values and fertilizer response curves requires non-linear plateau models that capture diminishing returns and threshold saturation:
+
+1. **Linear Plateau (von Liebig)**: Rigid law of the minimum.
+2. **Quadratic Plateau (Bullock & Bullock 1994)**: Smooth $C^1$ quadratic trajectory with $x_c = -b / (2c)$.
+3. **Mitscherlich-Bray Model**: Asymptotic saturation.
+4. **Economically Optimum Fertilizer Rate (EOFR)**: Maximizing margin over fertilizer cost.
+
+---
+
+```{r setup}
+library(agriinsight)
+set.seed(2026)
+```
+
+# Plateau Model Calibration
+
+```{r plateau, fig.width = 6.5, fig.height = 4.5}
+n_rate <- seq(0, 250, by = 25)
+grain_yield <- ifelse(n_rate < 140, 2400 + 36 * n_rate, 2400 + 36 * 140) + rnorm(length(n_rate), 0, 70)
+
+# Fit Linear Plateau
+mod_lp <- get_critical_soil_value(n_rate, grain_yield, method = "linear_plateau")
+mod_lp
+
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(mod_lp)
+}
+```
+
+---
+
+# Economically Optimum Fertilizer Rate (EOFR)
+
+```{r eofr}
+# Fertilizer price: $1.2/kg N, Grain price: $250/ton ($0.25/kg)
+eofr_res <- get_fertilizer_optimum(mod_lp, price_nutrient = 1.2, price_crop = 250)
+eofr_res
+```

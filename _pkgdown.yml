@@ -1,0 +1,104 @@
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [github]
+  components:
+    articles:
+      text: Articles
+      menu:
+        - text: "Getting Started"
+        - text: "Package Overview & Quickstart"
+          href: articles/agriinsight-quickstart.html
+        - text: "---"
+        - text: "Field & Breeding Trials"
+        - text: "Spatial Field Trials & MET GxE Stability"
+          href: articles/field-spatial-met-stability.html
+        - text: "---"
+        - text: "Plant Physiology & Abiotic Stress"
+        - text: "Abiotic Stress Kinetics (Drought, Salinity, Heat, FvCB)"
+          href: articles/abiotic-stress-physiology.html
+        - text: "---"
+        - text: "Crop Nutrition & Microbes"
+        - text: "Soil Fertility & Yield Plateau Models"
+          href: articles/crop-nutrition-plateau.html
+        - text: "Endophytes & Biocontrol Modeling"
+          href: articles/beneficial-microbes-biocontrol.html
+        - text: "---"
+        - text: "Reporting & Visualization"
+        - text: "AI Reporting & Publication Graphics"
+          href: articles/ai-reporting-visual-export.html
+
+reference:
+  - title: "Unified S3 Extraction Generics"
+    desc: "Model-agnostic parameter, variance, heritability, and BLUP extractors."
+    contents:
+      - get_heritability
+      - get_variance_genetic
+      - get_blups
+      - get_blues
+      - get_spatial_grid
+      - get_dose_response_params
+      - get_ed
+      - get_agri_parameters
+      - model_info_agri
+      - get_biplot_scores
+
+  - title: "Spatial Field Trials & MET Stability"
+    desc: "2D spatial semivariograms, AMMI/GGE biplots, and 2-stage weighting."
+    contents:
+      - get_semivariogram
+      - gxe_ammi
+      - gxe_gge
+      - stage1_to_stage2
+
+  - title: "Abiotic Stress & Plant Physiology"
+    desc: "Drought FTSW, salinity ion balance, thermal stress, and gas exchange."
+    contents:
+      - get_ftsw_breakpoint
+      - get_hydraulic_recovery_index
+      - get_ion_homeostasis
+      - get_osmotic_adjustment
+      - get_membrane_stability_index
+      - get_pollen_fertility
+      - get_grain_filling_kinetics
+      - get_heat_susceptibility_index
+      - get_photosynthetic_params
+      - get_growth_kinetics
+      - get_gam_inflection_points
+      - get_stress_phase_slopes
+      - get_temporal_covariance
+
+  - title: "Crop Nutrition & Soil Fertility"
+    desc: "Linear/quadratic plateau models, Mitscherlich-Bray curves, and EOFR."
+    contents:
+      - get_critical_soil_value
+      - get_fertilizer_optimum
+
+  - title: "Endophytes, Microbiome & Phytopathology"
+    desc: "ZOIB root colonization, microbial synergy, and AUDPS biocontrol."
+    contents:
+      - get_zoib_parameters
+      - calc_bliss_synergy
+      - get_microbial_synergy
+      - get_biocontrol_efficacy
+      - get_disease_severity_params
+
+  - title: "Controlled Environment Agriculture (CEA)"
+    desc: "Greenhouse microclimate gradients and physical strata decomposition."
+    contents:
+      - get_greenhouse_gradients
+      - get_strata_variance
+
+  - title: "Post-Hoc Comparisons, AI & Visuals"
+    desc: "Compact Letter Displays (CLD), AI reporting, and vector SVG exports."
+    contents:
+      - agro_cld
+      - compute_piepho_cld
+      - report_ai_diagnostics
+      - export_biorender_svg
+      - theme_agriinsight
+      - simulate_agri_data

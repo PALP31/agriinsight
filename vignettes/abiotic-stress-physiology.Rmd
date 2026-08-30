@@ -1,0 +1,75 @@
+---
+title: "Plant Stress Physiology: Drought FTSW, Salinity Ions, and Heat Shock Kinetics"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Plant Stress Physiology: Drought FTSW, Salinity Ions, and Heat Shock Kinetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+Abiotic stress phenomena (drought, salinity, heat shock during anthesis Zadoks 65) exhibit non-linear threshold responses:
+
+1. **Drought**: Fraction of Transpirable Soil Water (**FTSW**) stomatal closure breakpoint $\theta$.
+2. **Salinity**: Ion homeostasis ($K^+/Na^+$ selectivity) and active osmotic adjustment ($\Delta \Psi_s^{100}$).
+3. **Heat at Antesis**: Pollen sterility logit GLM and Richards grain-filling kinetics.
+4. **Photosynthesis**: Farquhar-von Caemmerer-Berry ($A/C_i$) $V_{c\max}$ and $J_{\max}$.
+
+---
+
+```{r setup}
+library(agriinsight)
+set.seed(2026)
+```
+
+# 1. Drought FTSW Breakpoint Modeling
+
+```{r ftsw, fig.width = 6.5, fig.height = 4.5}
+ftsw_seq <- seq(1.0, 0.05, by = -0.05)
+ntr_seq  <- ifelse(ftsw_seq >= 0.35, 1.0, 1.0 + 3.0 * (ftsw_seq - 0.35)) + rnorm(length(ftsw_seq), 0, 0.02)
+
+ftsw_fit <- get_ftsw_breakpoint(ftsw_seq, ntr_seq)
+ftsw_fit
+
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(ftsw_fit)
+}
+```
+
+---
+
+# 2. Salinity Ion Homeostasis & Osmotic Adjustment
+
+```{r salinity}
+# K+/Na+ homeostasis in durum wheat leaf blade
+ions <- get_ion_homeostasis(k_tissue = 4800, na_tissue = 750, k_substrate = 1.0, na_substrate = 1.0)
+ions
+
+# Active osmotic adjustment standardized to 100% RWC
+oa <- get_osmotic_adjustment(psi_s_stress = -2.2, rwc_stress = 0.65, psi_s_control = -1.1, rwc_control = 0.95)
+oa
+```
+
+---
+
+# 3. Photosynthetic $A/C_i$ Gas Exchange Curve
+
+```{r aci}
+ci_vals <- seq(50, 850, length.out = 10)
+anet_vals <- c(4.8, 11.5, 17.8, 23.5, 27.8, 30.9, 32.8, 34.0, 34.8, 35.0)
+
+params_fvcb <- get_photosynthetic_params(ci = ci_vals, a_net = anet_vals)
+params_fvcb
+```

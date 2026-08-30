@@ -1,0 +1,54 @@
+---
+title: "AI Diagnostic Co-Authoring & Publication-Ready Visual Exports"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AI Diagnostic Co-Authoring & Publication-Ready Visual Exports}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+`agriinsight` includes two innovative "plus" features:
+1. **AI Diagnostic Reporting (`report_ai_diagnostics`)**: Automatically parses fitted mixed models, spatial gradients, and treatment effect sizes into structured JSON prompts ready for Large Language Models (LLMs) to draft Results & Discussion sections for *Crop Science*, *Nature Plants*, and *TAG*.
+2. **BioRender-Style Vector Export (`export_biorender_svg`)**: Exports multi-layer SVG schematics with colorblind-safe **Okabe-Ito** palettes.
+
+---
+
+```{r setup}
+library(agriinsight)
+library(lme4)
+
+df_gh <- simulate_agri_data("greenhouse_wheat", n = 96)
+mod_gh <- lmer(Biomass_g ~ Inoculant + Pad_Distance + Pot_Density + (1 | Table_Block), data = df_gh)
+```
+
+# Generating AI Diagnostic Prompts
+
+```{r ai-report}
+ai_prompt <- report_ai_diagnostics(mod_gh, journal = "crop_science", language = "es")
+
+# Print structured prompt string
+cat(substr(as.character(ai_prompt), 1, 500), "...\n")
+```
+
+---
+
+# Exporting High-End Vector SVG
+
+```{r svg-export}
+svg_file <- tempfile(fileext = ".svg")
+export_biorender_svg(file = svg_file, theme = "academic_light")
+cat("Vector SVG written to:", svg_file, "\n")
+```

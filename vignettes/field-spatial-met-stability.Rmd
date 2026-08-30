@@ -1,0 +1,76 @@
+---
+title: "Multi-Environment Trials (MET): AMMI, GGE Biplots, and Stability Metrics"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multi-Environment Trials (MET): AMMI, GGE Biplots, and Stability Metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+Evaluating genotype performance across multi-environment trials (MET) requires decomposing Genotype-by-Environment ($G \times E$) interaction variance and identifying stable, high-yielding cultivars.
+
+`agriinsight` provides complete implementations for:
+1. **AMMI** (Additive Main Effects and Multiplicative Interaction)
+2. **GGE** (Genotype + Genotype-by-Environment) biplots
+3. Comprehensive stability indices: **ASV** (AMMI Stability Value), **YSI** (Yield-Stability Index), **Wricke's Ecovalence**, **Shukla's Stability Variance**, and **Finlay-Wilkinson Joint Regression**.
+
+---
+
+```{r setup}
+library(agriinsight)
+set.seed(2026)
+
+df_met <- simulate_agri_data("met_field_trials")
+```
+
+# AMMI Model Fitting & Stability Table
+
+```{r ammi-fit}
+ammi_res <- gxe_ammi(df_met, genotype = "Genotype", environment = "Environment", yield = "Yield")
+
+# View principal component decomposition
+ammi_res$pca_summary
+
+# View comprehensive stability rankings
+head(ammi_res$stability[order(ammi_res$stability$YSI), ], 6)
+```
+
+---
+
+# GGE Biplot & S3 Visualization
+
+```{r biplot, fig.width = 6.5, fig.height = 5}
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  # Plot AMMI Biplot (IPCA1 vs IPCA2) with environment vectors
+  plot(ammi_res, type = "biplot")
+}
+```
+
+---
+
+# 2-Stage MET Weighting Bridge
+
+```{r stage2}
+# Fit single-environment models for each trial location
+env_subsets <- split(df_met, df_met$Environment)
+models_stage1 <- lapply(env_subsets, function(sub_df) {
+  lm(Yield ~ Genotype + factor(Rep), data = sub_df)
+})
+
+# Construct Stage 2 dataset with inverse-variance weights
+stage2_res <- stage1_to_stage2(models_stage1, genotype_term = "Genotype")
+head(stage2_res$stage2_data, 6)
+```

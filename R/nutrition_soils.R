@@ -102,7 +102,8 @@ get_critical_soil_value <- function(nutrient, yield, method = c("linear_plateau"
     opt <- stats::optim(c(a = init_a, b = init_b, c = init_c), obj_qp,
                         method = "L-BFGS-B",
                         lower = c(-Inf, 1e-6, -Inf),
-                        upper = c(Inf, Inf, -1e-8))
+                        upper = c(Inf, Inf, -1e-8),
+                        hessian = TRUE)
     
     a_est <- opt$par["a"]
     b_est <- opt$par["b"]
@@ -113,8 +114,20 @@ get_critical_soil_value <- function(nutrient, yield, method = c("linear_plateau"
     r2 <- pmax(0, 1 - (ss_res / ss_tot))
     rmse <- sqrt(ss_res / (n - 3))
     
-    # Delta-method approximate SE for xc = -b / (2c)
-    se_xc <- sqrt(abs(xc_est) / (2 * n))
+    # Delta-method exact SE for xc = -b / (2c)
+    se_xc <- NA_real_
+    if (!is.null(opt$hessian)) {
+      cov_mat <- tryCatch(solve(opt$hessian) * (ss_res / (n - 3)), error = function(e) NULL)
+      if (!is.null(cov_mat) && all(diag(cov_mat) > 0)) {
+        grad_g <- c(-1 / (2 * c_est), b_est / (2 * c_est^2))
+        cov_bc <- cov_mat[2:3, 2:3]
+        var_xc <- as.numeric(t(grad_g) %*% cov_bc %*% grad_g)
+        if (var_xc > 0) se_xc <- sqrt(var_xc)
+      }
+    }
+    if (is.na(se_xc)) {
+      se_xc <- sqrt(abs(xc_est) / (2 * n))
+    }
     
     res_df <- data.frame(
       Model = "Quadratic_Plateau",

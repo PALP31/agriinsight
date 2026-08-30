@@ -1,0 +1,90 @@
+---
+title: "Getting Started with agriinsight: Unified Biometrics for Agriculture & Biology"
+author: "Paul Lopez"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with agriinsight: Unified Biometrics for Agriculture & Biology}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Introduction
+
+Statistical analysis in agricultural sciences and experimental biology spans diverse biological levels: from controlled environment chambers (CEA) and microclimatic gradients to multi-environment field breeding trials ($G \times E$), non-linear plant stress kinetics, and soil fertility calibration.
+
+Existing R packages like `easystats/insight` provide model-agnostic parameter extractors for general linear models, but lack domain-specific biometric extractors required by agronomists and plant biologists (such as **Cullis generalized heritability**, **2D anisotropic semivariograms**, **FTSW stomatal breakpoints**, **AMMI/GGE stability metrics**, and **Piepho maximal clique CLD groupings**).
+
+**`agriinsight`** bridges this gap by offering a zero-heavy-dependency S3 meta-interface that extracts biometrical parameters across `lme4`, `nlme`, `glmmTMB`, `SpATS`, `sommer`, and `drc`, accompanied by publication-grade visualizers and AI-ready reporting prompts.
+
+---
+
+# Installation & Loading
+
+```r
+# Install development version from GitHub
+remotes::install_github("PALP31/agriinsight")
+```
+
+```{r setup}
+library(agriinsight)
+library(lme4)
+```
+
+---
+
+# Built-in Realistic Datasets (`simulate_agri_data`)
+
+`agriinsight` includes a built-in simulation suite reproducing real agricultural structures:
+
+```{r datasets}
+# 1. Greenhouse wheat trial with pad-to-fan thermal gradient
+df_gh <- simulate_agri_data("greenhouse_wheat", n = 96)
+head(df_gh, 4)
+
+# 2. Multi-Environment Trial (MET) with GxE interactions
+df_met <- simulate_agri_data("met_field_trials")
+head(df_met, 4)
+```
+
+---
+
+# Core Workflow: Controlled Environment Agriculture (CEA)
+
+In greenhouse trials, physical cooling pads create microclimatic VPD and temperature gradients, while uneven germination creates density imbalances. We fit a linear mixed model accounting for these covariates and extract physical strata variances and Cullis heritability:
+
+```{r greenhouse-fit}
+# Fit LMM
+mod_gh <- lmer(Biomass_g ~ Inoculant + Pad_Distance + Pot_Density + (1 | Genotype) + (1 | Table_Block), data = df_gh)
+
+# Check microclimate gradient
+grads <- get_greenhouse_gradients(mod_gh, y_axis = "Pad_Distance")
+cat("Longitudinal gradient detected:", grads$gradient_detected, "\n")
+
+# Extract variance by physical stratum
+get_strata_variance(mod_gh)
+
+# Calculate Cullis generalized heritability (H2)
+get_heritability(mod_gh, type = "cullis")
+```
+
+---
+
+# Compact Letter Displays (CLD) via Piepho (2004)
+
+`agriinsight` implements the exact maximal clique algorithm (Bron-Kerbosch) in pure Base R without external dependencies:
+
+```{r cld}
+# Post-hoc comparisons with minimal letter codes
+cld_tab <- agro_cld(mod_gh, term = "Inoculant", method = "tukey")
+cld_tab
+```

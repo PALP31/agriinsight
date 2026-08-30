@@ -103,7 +103,7 @@ gxe_ammi <- function(data, genotype = "Genotype", environment = "Environment", y
   # Stability Metrics
   # 1. ASV (AMMI Stability Value)
   asv <- if (max_pc >= 2) {
-    w_factor <- (exp_var_pct[1] / exp_var_pct[2])
+    w_factor <- (exp_var_pct[1] / pmax(1e-6, exp_var_pct[2]))
     sqrt((w_factor * g_scores[, 1])^2 + (g_scores[, 2])^2)
   } else {
     abs(g_scores[, 1])
@@ -112,10 +112,10 @@ gxe_ammi <- function(data, genotype = "Genotype", environment = "Environment", y
   # 2. Wricke's Ecovalence (W_i^2)
   wricke_w2 <- rowSums(R_mat^2)
   
-  # 3. Shukla's Stability Variance
+  # 3. Shukla's Stability Variance (Shukla 1972 Exact)
   if (G > 2 && E > 1) {
     ss_ge_mat <- sum(R_mat^2)
-    shukla_var <- (G / ((G - 1) * (E - 1))) * wricke_w2 - (ss_ge_mat / ((G - 1) * (G - 2) * (E - 1)))
+    shukla_var <- (G / ((G - 2) * (E - 1))) * wricke_w2 - (ss_ge_mat / ((G - 1) * (G - 2) * (E - 1)))
   } else {
     shukla_var <- rep(NA_real_, G)
   }
