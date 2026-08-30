@@ -167,7 +167,13 @@ cld_from_base_lm <- function(model, term = NULL, alpha = 0.05, method = "tukey",
 
 #' @title Pure Base R Maximal Clique CLD Algorithm (Piepho, 2004)
 #' @description Solves the boolean adjacency sweep matrix to generate minimal, standardized grouping letters.
-#' @keywords internal
+#' @param treatments Character vector of treatment labels.
+#' @param means Numeric vector of treatment means.
+#' @param p_matrix Square matrix of pairwise p-values.
+#' @param alpha Significance threshold (default: 0.05).
+#' @param letters Letters vector to assign.
+#' @param reversed Logical; if TRUE, lowest mean gets 'a'.
+#' @export
 compute_piepho_cld <- function(treatments, means, p_matrix, alpha = 0.05, letters = NULL, reversed = FALSE) {
   letters_vec <- if (!is.null(letters)) letters else c(base::letters, base::LETTERS)
   names(means) <- treatments
