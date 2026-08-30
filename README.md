@@ -6,7 +6,6 @@
 [![Ecosystem](https://img.shields.io/badge/ecosystem-easystats--compatible-00e5bc.svg)](https://easystats.github.io/insight/)
 [![Domain](https://img.shields.io/badge/Domain-Agronomy%20%26%20Plant%20Biology-2ecc71.svg)](https://github.com/PALP31/agriinsight)
 [![Vignettes](https://img.shields.io/badge/Vignettes-6%20Articles-blueviolet.svg)](https://github.com/PALP31/agriinsight)
-[![Tests](https://img.shields.io/badge/Tests-175%20Passing%20(100%25)-brightgreen.svg)](https://github.com/PALP31/agriinsight)
 
 **`agriinsight`** is an advanced, lightweight S3 meta-interface and biometrical computing framework in R. Inspired by the zero-heavy-dependency philosophy and unified API of the **`easystats`** suite (`insight`, `performance`, `parameters`), **`agriinsight`** bridges classical generalist modeling engines (`lme4`, `glmmTMB`, `mgcv`, `brms`, `nlme`) with specialized agricultural, breeding, and experimental biology tools (`SpATS`, `sommer`, `drc`, `emmeans`).
 
@@ -81,11 +80,14 @@ General statistical packages designed for psychology or social sciences fail to 
 
 ## 📦 Installation
 
-Install the latest release from GitHub:
+Install the official **`v0.1.0`** release from GitHub:
 
 ```r
 # If not already installed: install.packages("remotes")
-remotes::install_github("PALP31/agriinsight")
+remotes::install_github("PALP31/agriinsight@v0.1.0")
+
+# Or install latest development branch:
+# remotes::install_github("PALP31/agriinsight")
 ```
 
 ---
